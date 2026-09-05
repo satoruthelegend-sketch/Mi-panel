@@ -1,155 +1,68 @@
 <!doctype html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MiPanel V2</title>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MiPanel V3</title>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#f5f7fb;color:#172033}
-header{background:#111827;color:white;padding:16px;position:sticky;top:0;z-index:5}
-.wrap{max-width:1100px;margin:auto;padding:0 16px}
-.top{display:flex;align-items:center;justify-content:space-between;gap:10px}.brand{font-weight:800;font-size:20px}
-nav{display:flex;gap:7px;overflow:auto;margin-top:12px}button,.btn{border:0;border-radius:10px;padding:10px 13px;background:#2563eb;color:white;font-weight:700;cursor:pointer}.ghost{background:#e8edf7;color:#172033}.darkghost{background:#253047;color:white}
-main{padding:22px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.card{background:white;border:1px solid #e3e8f1;border-radius:16px;padding:18px;box-shadow:0 4px 18px #00000008}
+header{background:#111827;color:#fff;padding:14px;position:sticky;top:0;z-index:5}.wrap{max-width:1100px;margin:auto;padding:0 16px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px}.brand{font-weight:800;font-size:20px}nav{display:flex;gap:7px;overflow:auto;margin-top:12px}
+button{border:0;border-radius:10px;padding:10px 13px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer}.ghost{background:#e8edf7;color:#172033}.darkghost{background:#253047;color:#fff}.danger{background:#dc2626}
+main{padding:22px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.card{background:#fff;border:1px solid #e3e8f1;border-radius:16px;padding:18px;box-shadow:0 4px 18px #00000008}
 h1,h2,h3{margin-top:0}.muted{color:#68758b}.price{font-size:24px;font-weight:800;margin:10px 0}.pill{display:inline-block;padding:5px 9px;border-radius:999px;background:#edf2ff;color:#3156b5;font-size:12px;font-weight:700}
-input,select,textarea{width:100%;padding:11px;border:1px solid #d8deea;border-radius:10px;margin:6px 0 12px;background:white}
-table{width:100%;border-collapse:collapse;background:white;border-radius:12px;overflow:hidden}th,td{padding:11px;border-bottom:1px solid #e8ecf3;text-align:left;font-size:14px}
-.hidden{display:none!important}.actions{display:flex;gap:8px;flex-wrap:wrap}.notice{padding:12px;border-radius:12px;background:#fff7df;margin-bottom:15px}
-.modal{position:fixed;inset:0;background:#0008;display:flex;align-items:center;justify-content:center;padding:18px;z-index:20}.modalbox{background:white;border-radius:18px;padding:20px;max-width:430px;width:100%}
-.stat{font-size:28px;font-weight:800}.danger{background:#dc2626}.success{background:#16a34a}
-footer{text-align:center;color:#738097;padding:30px}
-@media(max-width:600px){header{padding:12px}.top{align-items:flex-start}.grid{grid-template-columns:1fr}table{font-size:12px}th,td{padding:8px}}
+input,select,textarea{width:100%;padding:11px;border:1px solid #d8deea;border-radius:10px;margin:6px 0 12px;background:#fff}.hidden{display:none!important}.actions{display:flex;gap:8px;flex-wrap:wrap}
+.notice{padding:12px;border-radius:12px;background:#fff7df;margin-bottom:15px}.modal{position:fixed;inset:0;background:#0008;display:flex;align-items:center;justify-content:center;padding:18px;z-index:20}
+.modalbox{background:#fff;border-radius:18px;padding:20px;max-width:440px;width:100%;max-height:90vh;overflow:auto}.stat{font-size:28px;font-weight:800}
+footer{text-align:center;color:#738097;padding:30px}@media(max-width:600px){.grid{grid-template-columns:1fr}}
 </style>
-</head>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head>
 <body>
-<header>
-<div class="wrap">
-<div class="top"><div class="brand">⚡ MiPanel V2</div><div id="userArea"></div></div>
-<nav>
-<button class="darkghost" onclick="show('home')">Inicio</button>
-<button class="darkghost" onclick="show('services')">Servicios</button>
-<button class="darkghost" onclick="show('orders')">Pedidos</button>
-<button class="darkghost" onclick="show('balance')">Saldo</button>
-<button class="darkghost" onclick="show('support')">Soporte</button>
-<button class="darkghost hidden" id="adminNav" onclick="show('admin')">Admin</button>
-</nav>
-</div>
-</header>
-
+<header><div class="wrap"><div class="top"><div class="brand">⚡ MiPanel V3</div><div id="userArea"></div></div>
+<nav><button class="darkghost" onclick="show('home')">Inicio</button><button class="darkghost" onclick="show('services')">Servicios</button><button class="darkghost" onclick="show('orders')">Pedidos</button><button class="darkghost" onclick="show('balance')">Saldo</button><button class="darkghost" onclick="show('support')">Soporte</button><button class="darkghost hidden" id="adminNav" onclick="show('admin')">Admin</button></nav></div></header>
 <main class="wrap">
-<section id="home">
-<div class="card">
-<h1>Tu panel de servicios digitales</h1>
-<p class="muted">Prototipo V2 con cuentas, pedidos, servicios y saldo guardados en este navegador.</p>
-<div class="actions"><button onclick="show('services')">Ver servicios</button><button class="ghost" onclick="openAuth('register')">Crear cuenta</button></div>
-</div>
-<br><div class="grid">
-<div class="card"><div class="stat" id="statServices">0</div><div class="muted">Servicios activos</div></div>
-<div class="card"><div class="stat" id="statOrders">0</div><div class="muted">Tus pedidos</div></div>
-<div class="card"><div class="stat" id="statBalance">Q0.00</div><div class="muted">Tu saldo</div></div>
-</div>
-</section>
-
-<section id="services" class="hidden">
-<h2>Servicios</h2><div id="serviceGrid" class="grid"></div>
-</section>
-
-<section id="orders" class="hidden">
-<h2>Mis pedidos</h2><div class="card"><div id="ordersBox"></div></div>
-</section>
-
-<section id="balance" class="hidden">
-<h2>Saldo</h2>
-<div class="notice">En esta V2 el saldo es de demostración. Todavía no hay pagos reales conectados.</div>
-<div class="card"><h3>Saldo actual: <span id="balanceValue">Q0.00</span></h3>
-<button onclick="demoDeposit()">Añadir Q100 de prueba</button>
-</div>
-</section>
-
-<section id="support" class="hidden">
-<h2>Soporte</h2><div class="card"><p>Escribe aquí cómo quieres que tus clientes te contacten.</p>
-<textarea id="supportText" placeholder="Tu mensaje..."></textarea><button onclick="alert('Mensaje de demostración enviado')">Enviar</button></div>
-</section>
-
-<section id="admin" class="hidden">
-<h2>Panel de administración</h2>
-<div class="grid">
-<div class="card"><div class="stat" id="adminUsers">0</div><div class="muted">Usuarios</div></div>
-<div class="card"><div class="stat" id="adminOrders">0</div><div class="muted">Pedidos</div></div>
-</div><br>
-<div class="card"><h3>Agregar servicio</h3>
-<input id="newName" placeholder="Nombre del servicio">
-<input id="newDesc" placeholder="Descripción">
-<input id="newPrice" type="number" step="0.01" placeholder="Precio en Q">
-<button onclick="addService()">Agregar</button></div><br>
-<div class="card"><h3>Servicios</h3><div id="adminServices"></div></div><br>
-<div class="card"><h3>Todos los pedidos</h3><div id="adminOrdersBox"></div></div>
-</section>
-</main>
-
-<footer>MiPanel V2 — prototipo para servicios digitales legítimos.</footer>
-
-<div id="auth" class="modal hidden">
-<div class="modalbox">
-<h2 id="authTitle">Iniciar sesión</h2>
-<div id="authForm">
-<input id="authEmail" type="email" placeholder="Correo">
-<input id="authPass" type="password" placeholder="Contraseña">
-<button id="authButton" onclick="submitAuth()">Entrar</button>
-<button class="ghost" onclick="closeAuth()">Cancelar</button>
-</div>
-<p class="muted" style="margin-bottom:0"><span id="switchText">¿No tienes cuenta?</span> <button class="ghost" onclick="toggleAuth()">Cambiar</button></p>
-</div></div>
-
+<section id="home"><div class="card"><h1>Tu panel de servicios digitales</h1><p class="muted">Versión conectada a Supabase: cuentas, servicios, pedidos, saldo y soporte.</p><div class="actions"><button onclick="show('services')">Ver servicios</button><button class="ghost" id="homeAuth" onclick="openAuth('register')">Crear cuenta</button></div></div><br>
+<div class="grid"><div class="card"><div class="stat" id="statServices">0</div><div class="muted">Servicios activos</div></div><div class="card"><div class="stat" id="statOrders">0</div><div class="muted">Tus pedidos</div></div><div class="card"><div class="stat" id="statBalance">Q0.00</div><div class="muted">Tu saldo</div></div></div></section>
+<section id="services" class="hidden"><h2>Servicios</h2><div id="serviceGrid" class="grid"></div></section>
+<section id="orders" class="hidden"><h2>Mis pedidos</h2><div class="card"><div id="ordersBox"></div></div></section>
+<section id="balance" class="hidden"><h2>Saldo</h2><div class="notice">Las recargas reales se conectarán después. El navegador no puede acreditarlas de forma segura.</div><div class="card"><h3>Saldo actual: <span id="balanceValue">Q0.00</span></h3><p class="muted">El saldo se consulta desde la base de datos.</p></div></section>
+<section id="support" class="hidden"><h2>Soporte</h2><div class="card"><input id="ticketSubject" placeholder="Asunto"><textarea id="ticketMessage" placeholder="Escribe tu mensaje..."></textarea><button onclick="createTicket()">Enviar ticket</button><div id="myTickets" style="margin-top:15px"></div></div></section>
+<section id="admin" class="hidden"><h2>Panel de administración</h2><div class="grid"><div class="card"><div class="stat" id="adminUsers">0</div><div class="muted">Usuarios</div></div><div class="card"><div class="stat" id="adminOrders">0</div><div class="muted">Pedidos</div></div><div class="card"><div class="stat" id="adminTickets">0</div><div class="muted">Tickets</div></div></div><br>
+<div class="card"><h3>Agregar servicio</h3><input id="newName" placeholder="Nombre"><input id="newDesc" placeholder="Descripción"><input id="newPrice" type="number" min="0" step=".01" placeholder="Precio en Q"><button onclick="addService()">Agregar</button></div><br>
+<div class="card"><h3>Servicios</h3><div id="adminServices"></div></div><br><div class="card"><h3>Pedidos</h3><div id="adminOrdersBox"></div></div><br><div class="card"><h3>Tickets</h3><div id="adminTicketsBox"></div></div></section>
+</main><footer>MiPanel V3 — servicios digitales legítimos.</footer>
+<div id="auth" class="modal hidden"><div class="modalbox"><h2 id="authTitle">Iniciar sesión</h2><div id="registerNameWrap" class="hidden"><input id="authName" placeholder="Nombre"></div><input id="authEmail" type="email" placeholder="Correo"><input id="authPass" type="password" placeholder="Contraseña"><button onclick="submitAuth()" id="authButton">Entrar</button> <button class="ghost" onclick="closeAuth()">Cancelar</button><p class="muted"><span id="switchText">¿No tienes cuenta?</span> <button class="ghost" onclick="toggleAuth()">Cambiar</button></p><button class="ghost" onclick="resetPassword()">Olvidé mi contraseña</button><p id="authMsg"></p></div></div>
 <script>
-const KEY='mipanel_v2_data';
-let data=JSON.parse(localStorage.getItem(KEY)||'null')||{
-users:[{id:1,email:'admin@demo.local',pass:'demo123',role:'admin',balance:0}],
-services:[
-{id:1,name:'Diseño de miniatura',desc:'Miniatura personalizada para video',price:25,active:true},
-{id:2,name:'Edición de video corto',desc:'Edición básica para contenido vertical',price:50,active:true},
-{id:3,name:'Diseño para publicación',desc:'Diseño gráfico para una publicación',price:20,active:true}
-],
-orders:[]
-};
-let session=JSON.parse(localStorage.getItem('mipanel_v2_session')||'null');
-let authMode='login';
-function save(){localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem('mipanel_v2_session',JSON.stringify(session));render();}
-function current(){return data.users.find(u=>u.id===session?.id)}
-function money(n){return 'Q'+Number(n).toFixed(2)}
-function show(id){document.querySelectorAll('main section').forEach(x=>x.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');render()}
-function openAuth(mode){authMode=mode;document.getElementById('auth').classList.remove('hidden');document.getElementById('authTitle').textContent=mode==='login'?'Iniciar sesión':'Crear cuenta';document.getElementById('authButton').textContent=mode==='login'?'Entrar':'Registrarme';document.getElementById('switchText').textContent=mode==='login'?'¿No tienes cuenta?':'¿Ya tienes cuenta?'}
-function closeAuth(){document.getElementById('auth').classList.add('hidden')}
-function toggleAuth(){openAuth(authMode==='login'?'register':'login')}
-function submitAuth(){
-let email=document.getElementById('authEmail').value.trim().toLowerCase(),pass=document.getElementById('authPass').value;
-if(!email||pass.length<4)return alert('Escribe un correo y una contraseña de al menos 4 caracteres.');
-if(authMode==='login'){let u=data.users.find(x=>x.email===email&&x.pass===pass);if(!u)return alert('Datos incorrectos.');session={id:u.id};closeAuth();render();}
-else{if(data.users.some(x=>x.email===email))return alert('Ese correo ya está registrado.');let u={id:Date.now(),email,pass,role:'user',balance:0};data.users.push(u);session={id:u.id};save();closeAuth();alert('Cuenta creada.')}
+const SUPABASE_URL='https://qmsiiucqqzshewzuetyk.supabase.co';
+const SUPABASE_KEY='sb_publishable_LG_52niUP7Dn42oQHBamDw_rWB8mHYB';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+let session=null,profile=null,services=[],authMode='login';
+const money=n=>'Q'+Number(n||0).toFixed(2);
+const esc=x=>String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+function show(id){document.querySelectorAll('main section').forEach(x=>x.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');renderAll()}
+function openAuth(mode){authMode=mode;auth.classList.remove('hidden');authTitle.textContent=mode==='login'?'Iniciar sesión':'Crear cuenta';authButton.textContent=mode==='login'?'Entrar':'Registrarme';switchText.textContent=mode==='login'?'¿No tienes cuenta?':'¿Ya tienes cuenta?';registerNameWrap.classList.toggle('hidden',mode==='login');authMsg.textContent=''}
+function closeAuth(){auth.classList.add('hidden')} function toggleAuth(){openAuth(authMode==='login'?'register':'login')}
+async function submitAuth(){
+ const email=authEmail.value.trim(),pass=authPass.value;
+ if(!email||pass.length<6){authMsg.textContent='Usa un correo válido y una contraseña de al menos 6 caracteres.';return}
+ if(authMode==='register'){const name=authName.value.trim();if(!name){authMsg.textContent='Escribe tu nombre.';return}
+  const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{name},emailRedirectTo:location.origin+location.pathname}});
+  if(error){authMsg.textContent=error.message;return} authMsg.textContent=data.session?'Cuenta creada.':'Cuenta creada. Revisa tu correo para confirmar.';if(data.session){await loadSession();closeAuth()}
+ }else{const {error}=await sb.auth.signInWithPassword({email,password:pass});if(error){authMsg.textContent=error.message;return}await loadSession();closeAuth()}
 }
-function logout(){session=null;save();show('home')}
-function buy(id){
-let u=current();if(!u)return openAuth('login');let s=data.services.find(x=>x.id===id);if(u.balance<s.price)return alert('Saldo insuficiente. Usa el saldo de demostración para probar.');u.balance-=s.price;
-data.orders.push({id:Date.now(),userId:u.id,serviceId:s.id,price:s.price,status:'Pendiente',created:new Date().toLocaleString()});save();alert('Pedido creado.');show('orders');
-}
-function demoDeposit(){let u=current();if(!u)return openAuth('login');u.balance+=100;save();alert('Se añadieron Q100 de demostración.')}
-function addService(){let n=document.getElementById('newName').value.trim(),d=document.getElementById('newDesc').value.trim(),p=Number(document.getElementById('newPrice').value);if(!n||!p)return alert('Completa nombre y precio.');data.services.push({id:Date.now(),name:n,desc:d,price:p,active:true});save();document.getElementById('newName').value='';document.getElementById('newDesc').value='';document.getElementById('newPrice').value=''}
-function toggleService(id){let s=data.services.find(x=>x.id===id);s.active=!s.active;save()}
-function setStatus(id,status){let o=data.orders.find(x=>x.id===id);o.status=status;save()}
-function render(){
-let u=current();
-document.getElementById('userArea').innerHTML=u?`<span>${u.email}</span> <button class="ghost" onclick="logout()">Salir</button>`:`<button onclick="openAuth('login')">Entrar</button>`;
-document.getElementById('adminNav').classList.toggle('hidden',u?.role!=='admin');
-document.getElementById('serviceGrid').innerHTML=data.services.filter(s=>s.active).map(s=>`<div class="card"><span class="pill">Disponible</span><h3>${esc(s.name)}</h3><p class="muted">${esc(s.desc||'')}</p><div class="price">${money(s.price)}</div><button onclick="buy(${s.id})">Comprar</button></div>`).join('')||'<div class="card">No hay servicios activos.</div>';
-let myOrders=u?data.orders.filter(o=>o.userId===u.id):[];
-document.getElementById('ordersBox').innerHTML=myOrders.length?`<table><tr><th>Servicio</th><th>Precio</th><th>Estado</th></tr>${myOrders.map(o=>{let s=data.services.find(x=>x.id===o.serviceId);return `<tr><td>${esc(s?.name||'Servicio')}</td><td>${money(o.price)}</td><td>${o.status}</td></tr>`}).join('')}</table>`:'<p class="muted">Inicia sesión para ver tus pedidos.</p>';
-document.getElementById('balanceValue').textContent=money(u?.balance||0);document.getElementById('statBalance').textContent=money(u?.balance||0);document.getElementById('statServices').textContent=data.services.filter(s=>s.active).length;document.getElementById('statOrders').textContent=myOrders.length;
-document.getElementById('adminUsers').textContent=data.users.length;document.getElementById('adminOrders').textContent=data.orders.length;
-document.getElementById('adminServices').innerHTML=data.services.map(s=>`<div class="card" style="margin:8px 0"><b>${esc(s.name)}</b> — ${money(s.price)} — ${s.active?'Activo':'Inactivo'} <button class="${s.active?'danger':''}" onclick="toggleService(${s.id})">${s.active?'Desactivar':'Activar'}</button></div>`).join('');
-document.getElementById('adminOrdersBox').innerHTML=data.orders.length?`<table><tr><th>Usuario</th><th>Servicio</th><th>Estado</th><th>Cambiar</th></tr>${data.orders.map(o=>{let uu=data.users.find(x=>x.id===o.userId),s=data.services.find(x=>x.id===o.serviceId);return `<tr><td>${esc(uu?.email||'')}</td><td>${esc(s?.name||'')}</td><td>${o.status}</td><td><select onchange="setStatus(${o.id},this.value)"><option ${o.status==='Pendiente'?'selected':''}>Pendiente</option><option ${o.status==='En progreso'?'selected':''}>En progreso</option><option ${o.status==='Completado'?'selected':''}>Completado</option><option ${o.status==='Cancelado'?'selected':''}>Cancelado</option></select></td></tr>`}).join('')}</table>`:'<p class="muted">No hay pedidos.</p>';
-}
-function esc(x){return String(x).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-render();
-</script>
-</body>
-</html>
+async function resetPassword(){const email=authEmail.value.trim();if(!email){authMsg.textContent='Escribe primero tu correo.';return}const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});authMsg.textContent=error?error.message:'Si el correo está registrado, recibirás instrucciones.'}
+async function loadSession(){const {data}=await sb.auth.getSession();session=data.session;profile=null;if(session){const r=await sb.from('profiles').select('*').eq('id',session.user.id).maybeSingle();profile=r.data||null}await loadServices();await renderAll()}
+async function loadServices(){const r=await sb.from('services').select('*').eq('active',true).order('id');services=r.data||[]}
+async function logout(){await sb.auth.signOut();session=null;profile=null;show('home')}
+async function buy(id){if(!session){openAuth('login');return}const r=await sb.rpc('place_order',{p_service_id:id});if(r.error){alert(r.error.message);return}alert('Pedido creado correctamente.');await loadSession();show('orders')}
+async function createTicket(){if(!session){openAuth('login');return}const subject=ticketSubject.value.trim(),message=ticketMessage.value.trim();if(!subject||!message){alert('Completa asunto y mensaje.');return}const r=await sb.from('support_tickets').insert({user_id:session.user.id,subject,message,status:'open'});if(r.error){alert(r.error.message);return}ticketSubject.value='';ticketMessage.value='';await renderTickets()}
+async function addService(){if(profile?.role!=='admin')return;const name=newName.value.trim(),description=newDesc.value.trim(),price=Number(newPrice.value);if(!name||price<0){alert('Completa los datos.');return}const r=await sb.from('services').insert({name,description,price,active:true});if(r.error){alert(r.error.message);return}newName.value='';newDesc.value='';newPrice.value='';await loadServices();renderAll()}
+async function toggleService(id,active){if(profile?.role!=='admin')return;const r=await sb.from('services').update({active:!active}).eq('id',id);if(r.error)alert(r.error.message);await loadServices();renderAll()}
+async function adminStatus(id,status){if(profile?.role!=='admin')return;const r=await sb.from('orders').update({status}).eq('id',id);if(r.error)alert(r.error.message);renderAll()}
+async function renderTickets(){if(!session)return;const r=await sb.from('support_tickets').select('*').eq('user_id',session.user.id).order('created_at',{ascending:false});myTickets.innerHTML=(r.data||[]).map(t=>`<div class="card" style="margin:8px 0"><b>${esc(t.subject)}</b> — ${esc(t.status)}<p>${esc(t.message)}</p></div>`).join('')||'<p class="muted">No tienes tickets.</p>'}
+async function renderAdmin(){if(profile?.role!=='admin')return;const u=await sb.from('profiles').select('id');const o=await sb.from('orders').select('*').order('created_at',{ascending:false});const t=await sb.from('support_tickets').select('*').order('created_at',{ascending:false});adminUsers.textContent=(u.data||[]).length;adminOrders.textContent=(o.data||[]).length;adminTickets.textContent=(t.data||[]).length;
+adminServices.innerHTML=services.map(s=>`<div class="card" style="margin:8px 0"><b>${esc(s.name)}</b> — ${money(s.price)} — ${s.active?'Activo':'Inactivo'} <button class="${s.active?'danger':''}" onclick="toggleService(${s.id},${s.active})">${s.active?'Desactivar':'Activar'}</button></div>`).join('');
+adminOrdersBox.innerHTML=(o.data||[]).map(x=>`<div class="card" style="margin:8px 0">Pedido #${esc(x.id)} — ${money(x.price)} — <select onchange="adminStatus(${x.id},this.value)"><option value="pending" ${x.status==='pending'?'selected':''}>Pendiente</option><option value="processing" ${x.status==='processing'?'selected':''}>En progreso</option><option value="completed" ${x.status==='completed'?'selected':''}>Completado</option><option value="cancelled" ${x.status==='cancelled'?'selected':''}>Cancelado</option></select></div>`).join('')||'<p class="muted">No hay pedidos.</p>';
+adminTicketsBox.innerHTML=(t.data||[]).map(x=>`<div class="card" style="margin:8px 0"><b>${esc(x.subject)}</b><p>${esc(x.message)}</p>${esc(x.status)}</div>`).join('')||'<p class="muted">No hay tickets.</p>'}
+async function renderAll(){userArea.innerHTML=session?`<span>${esc(profile?.name||session.user.email)}</span> <button class="ghost" onclick="logout()">Salir</button>`:`<button onclick="openAuth('login')">Entrar</button>`;adminNav.classList.toggle('hidden',profile?.role!=='admin');homeAuth.classList.toggle('hidden',!!session);
+serviceGrid.innerHTML=services.map(s=>`<div class="card"><span class="pill">Disponible</span><h3>${esc(s.name)}</h3><p class="muted">${esc(s.description||'')}</p><div class="price">${money(s.price)}</div><button onclick="buy(${s.id})">Comprar</button></div>`).join('')||'<div class="card">No hay servicios activos.</div>';
+let my=[];if(session){const r=await sb.from('orders').select('*').eq('user_id',session.user.id).order('created_at',{ascending:false});my=r.data||[]}ordersBox.innerHTML=my.map(x=>`<div class="card" style="margin:8px 0"><b>Pedido #${esc(x.id)}</b> — ${money(x.price)} — ${esc(x.status)}</div>`).join('')||'<p class="muted">Inicia sesión para ver tus pedidos.</p>';const bal=Number(profile?.balance||0);balanceValue.textContent=money(bal);statBalance.textContent=money(bal);statServices.textContent=services.length;statOrders.textContent=my.length;if(session)await renderTickets();if(profile?.role==='admin')await renderAdmin()}
+sb.auth.onAuthStateChange(()=>setTimeout(loadSession,0));loadSession();
+</script></body></html>

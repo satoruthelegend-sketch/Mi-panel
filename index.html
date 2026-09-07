@@ -22,7 +22,48 @@ footer{text-align:center;color:#738097;padding:30px}@media(max-width:600px){.gri
 <div class="grid"><div class="card"><div class="stat" id="statServices">0</div><div class="muted">Servicios activos</div></div><div class="card"><div class="stat" id="statOrders">0</div><div class="muted">Tus pedidos</div></div><div class="card"><div class="stat" id="statBalance">Q0.00</div><div class="muted">Tu saldo</div></div></div></section>
 <section id="services" class="hidden"><h2>Servicios</h2><div id="serviceGrid" class="grid"></div></section>
 <section id="orders" class="hidden"><h2>Mis pedidos</h2><div class="card"><div id="ordersBox"></div></div></section>
-<section id="balance" class="hidden"><h2>Saldo</h2><div class="notice">Las recargas reales se conectarán después. El navegador no puede acreditarlas de forma segura.</div><div class="card"><h3>Saldo actual: <span id="balanceValue">Q0.00</span></h3><p class="muted">El saldo se consulta desde la base de datos.</p></div></section>
+<section id="balance" class="hidden">
+<h2>Saldo</h2>
+
+<div class="card">
+<h3>Saldo actual: <span id="balanceValue">Q0.00</span></h3>
+<p class="muted">El saldo se consulta desde la base de datos.</p>
+</div>
+
+<br>
+
+<div class="card">
+<h3>Solicitar recarga</h3>
+
+<input id="rechargeAmount"
+type="number"
+min="1"
+step="0.01"
+placeholder="Monto en Q">
+
+<input id="rechargeMethod"
+placeholder="Método de pago">
+
+<input id="rechargeReference"
+placeholder="Referencia o comprobante">
+
+<button onclick="requestRecharge()">
+Solicitar recarga
+</button>
+
+<p id="rechargeMsg" class="muted"></p>
+</div>
+
+<br>
+
+<div class="card">
+<h3>Mis solicitudes de recarga</h3>
+<div id="rechargeHistory">
+Cargando...
+</div>
+</div>
+
+</section>
 <section id="support" class="hidden"><h2>Soporte</h2><div class="card"><input id="ticketSubject" placeholder="Asunto"><textarea id="ticketMessage" placeholder="Escribe tu mensaje..."></textarea><button onclick="createTicket()">Enviar ticket</button><div id="myTickets" style="margin-top:15px"></div></div></section>
 <section id="admin" class="hidden"><h2>Panel de administración</h2><div class="grid"><div class="card"><div class="stat" id="adminUsers">0</div><div class="muted">Usuarios</div></div><div class="card"><div class="stat" id="adminOrders">0</div><div class="muted">Pedidos</div></div><div class="card"><div class="stat" id="adminTickets">0</div><div class="muted">Tickets</div></div></div><br>
 <div class="card"><h3>Agregar servicio</h3><input id="newName" placeholder="Nombre"><input id="newDesc" placeholder="Descripción"><input id="newPrice" type="number" min="0" step=".01" placeholder="Precio en Q"><button onclick="addService()">Agregar</button></div><br>
@@ -65,4 +106,84 @@ async function renderAll(){userArea.innerHTML=session?`<span>${esc(profile?.name
 serviceGrid.innerHTML=services.map(s=>`<div class="card"><span class="pill">Disponible</span><h3>${esc(s.name)}</h3><p class="muted">${esc(s.description||'')}</p><div class="price">${money(s.price)}</div><button onclick="buy(${s.id})">Comprar</button></div>`).join('')||'<div class="card">No hay servicios activos.</div>';
 let my=[];if(session){const r=await sb.from('orders').select('*').eq('user_id',session.user.id).order('created_at',{ascending:false});my=r.data||[]}ordersBox.innerHTML=my.map(x=>`<div class="card" style="margin:8px 0"><b>Pedido #${esc(x.id)}</b> — ${money(x.price)} — ${esc(x.status)}</div>`).join('')||'<p class="muted">Inicia sesión para ver tus pedidos.</p>';const bal=Number(profile?.balance||0);balanceValue.textContent=money(bal);statBalance.textContent=money(bal);statServices.textContent=services.length;statOrders.textContent=my.length;if(session)await renderTickets();if(profile?.role==='admin')await renderAdmin()}
 sb.auth.onAuthStateChange(()=>setTimeout(loadSession,0));loadSession();
+async function requestRecharge(){
+  if(!session){
+    alert('Debes iniciar sesión.');
+    return;
+  }
+
+  const amount=parseFloat(
+    document.getElementById('rechargeAmount').value
+  );
+
+  const method=document.getElementById('rechargeMethod').value.trim();
+  const reference=document.getElementById('rechargeReference').value.trim();
+  const msg=document.getElementById('rechargeMsg');
+
+  if(!amount || amount<=0){
+    msg.textContent='Ingresa un monto válido.';
+    return;
+  }
+
+  if(!method){
+    msg.textContent='Ingresa el método de pago.';
+    return;
+  }
+
+  const {error}=await sb
+    .from('recharge_requests')
+    .insert({
+      user_id:session.user.id,
+      amount:amount,
+      reference:method + ' - ' + reference,
+      status:'pending'
+    });
+
+  if(error){
+    console.error(error);
+    msg.textContent='No se pudo enviar la solicitud: '+error.message;
+    return;
+  }
+
+  msg.textContent='Solicitud enviada correctamente.';
+
+  document.getElementById('rechargeAmount').value='';
+  document.getElementById('rechargeMethod').value='';
+  document.getElementById('rechargeReference').value='';
+
+  loadRechargeHistory();
+}
+
+async function loadRechargeHistory(){
+
+  if(!session) return;
+
+  const box=document.getElementById('rechargeHistory');
+
+  const {data,error}=await sb
+    .from('recharge_requests')
+    .select('*')
+    .eq('user_id',session.user.id)
+    .order('created_at',{ascending:false});
+
+  if(error){
+    box.textContent='No se pudieron cargar las recargas.';
+    return;
+  }
+
+  if(!data || data.length===0){
+    box.textContent='Todavía no tienes solicitudes de recarga.';
+    return;
+  }
+
+  box.innerHTML=data.map(r=>`
+    <div class="card">
+      <strong>Q${Number(r.amount).toFixed(2)}</strong>
+      <br>
+      Estado: ${r.status}
+      <br>
+      <small>${new Date(r.created_at).toLocaleString()}</small>
+    </div>
+  `).join('');
+}
 </script></body></html>
